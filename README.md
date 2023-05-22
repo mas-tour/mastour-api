@@ -1,5 +1,7 @@
 # MasTour Backend API
 
+Backend created with fastify
+
 ## Setup Project
 
 1. Clone the project
