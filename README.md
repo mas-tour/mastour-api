@@ -10,8 +10,6 @@
 6. run `pnpm dev` to run the server
 7. open `localhost:9000/docs` for swagger documentation
 
-Ifan ganteng sekali ges
-
 ## Migration
 
 ### Creating
