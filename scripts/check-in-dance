@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+
+cp .env.example .env
+
+pnpm install
+
+scripts/set-up api

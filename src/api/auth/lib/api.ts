@@ -16,12 +16,12 @@ const authRoute: FastifyPluginAsync<JwtOptions & BcryptOpts> = async (
     Body: Auth['signup']['body'];
     Reply: Auth['signup']['response'];
   }>(
-    `${AuthSchema.signup.path}`,
+    `${opts.prefix}${AuthSchema.signup.path}`,
     {
       schema: {
         tags: ['auth', 'signup'],
         body: AuthSchema.signup.body,
-        response: addErrorSchemas({ 200: AuthSchema.signup.response }),
+        response: addErrorSchemas({ 201: AuthSchema.signup.response }),
       },
     },
     async (request, reply) => {
@@ -30,8 +30,28 @@ const authRoute: FastifyPluginAsync<JwtOptions & BcryptOpts> = async (
         request.body,
         opts.saltRounds
       );
+      console.log('authRoute#(anon) result: %s', result); // __AUTO_GENERATED_PRINT_VAR__
 
       sendResult(result, reply, 201);
+    }
+  );
+
+  fastify.post<{
+    Body: Auth['signin']['body'];
+    Reply: Auth['signin']['response'];
+  }>(
+    `${opts.prefix}${AuthSchema.signin.path}`,
+    {
+      schema: {
+        tags: ['auth', 'signin'],
+        body: AuthSchema.signin.body,
+        response: addErrorSchemas({ 200: AuthSchema.signin.response }),
+      },
+    },
+    async (request, reply) => {
+      const result = await data.signIn(fastify.db, fastify.jwt, request.body);
+
+      sendResult(result, reply, 200);
     }
   );
 };

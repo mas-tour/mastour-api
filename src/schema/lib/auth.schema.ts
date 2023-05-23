@@ -13,6 +13,18 @@ export const AuthSchema = {
       data: Type.Pick(DbSchema['users'], ['id', 'username', 'email']),
     }),
   },
+  signin: {
+    path: '/sign-in',
+    body: Type.Intersect([Type.Pick(DbSchema['users'], ['email', 'password'])]),
+    response: Type.Object({
+      data: Type.Intersect([
+        Type.Pick(DbSchema['users'], ['id', 'username', 'email']),
+        Type.Object({
+          token: Type.String(),
+        }),
+      ]),
+    }),
+  },
 };
 
 export type Auth = RecursiveStatic<typeof AuthSchema>;
