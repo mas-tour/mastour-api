@@ -27,6 +27,11 @@ export const swagger: FastifyPluginAsync = fp<FastifySwaggerOptions>(
             in: 'header',
           },
         },
+        security: [
+          {
+            bearerAuth: [],
+          }
+        ]
       },
     });
   }
