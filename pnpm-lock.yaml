@@ -53,6 +53,9 @@ dependencies:
   ts-results:
     specifier: ^3.3.0
     version: 3.3.0
+  tslib:
+    specifier: ^2.5.2
+    version: 2.5.2
 
 devDependencies:
   '@types/bcrypt':
@@ -106,9 +109,6 @@ devDependencies:
   ts-node:
     specifier: ^10.9.1
     version: 10.9.1(@types/node@20.2.3)(typescript@5.0.4)
-  tslib:
-    specifier: ^2.5.2
-    version: 2.5.2
   typescript:
     specifier: ^5.0.4
     version: 5.0.4
@@ -4674,7 +4674,7 @@ packages:
 
   /tslib@2.5.2:
     resolution: {integrity: sha512-5svOrSA2w3iGFDs1HibEVBGbDrAY82bFQ3HZ3ixB+88nsbsWQoKqDRb5UBYAUPEzbBn6dAp5gRNXglySbx1MlA==}
-    dev: true
+    dev: false
 
   /tsutils@3.21.0(typescript@5.0.4):
     resolution: {integrity: sha512-mHKK3iUXL+3UF6xL5k0PEhKRUBKPBCv/+RkEOpjRWxxx27KKRBmmA60A9pgOUvMi8GKhRMPEmjBRPzs2W7O1OA==}
