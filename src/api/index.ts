@@ -2,7 +2,8 @@ import { FastifyPluginAsync } from 'fastify';
 
 import { authPlugin } from './auth';
 import { matchmakingPlugin } from './matchmaking';
-import { AuthSchema, MatchmakingSchema } from '../schema';
+import { AuthSchema, MatchmakingSchema, GuidesSchema } from '../schema';
+import { guidesPlugin } from './guides';
 
 export const appRoutes: FastifyPluginAsync = async (app) => {
   app.get('/health', (_, reply) => {
@@ -20,5 +21,8 @@ export const appRoutes: FastifyPluginAsync = async (app) => {
   });
   app.register(matchmakingPlugin, {
     prefix: `${MatchmakingSchema.path}`,
+  });
+  app.register(guidesPlugin, {
+    prefix: `${GuidesSchema.path}`,
   });
 };
