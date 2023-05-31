@@ -23,6 +23,7 @@ export async function up(db: Kysely<any>): Promise<void> {
         .addColumn('updated_at', 'bigint', (col) =>
             col.defaultTo(sql`EXTRACT(EPOCH FROM NOW()) * 1000`).notNull()
         )
+        .addColumn("personality", sql`integer[25]`)
         .execute();
 
     await db.schema

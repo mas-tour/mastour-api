@@ -13,6 +13,7 @@ export const User = Type.Object({
     picture: Nullable(Type.String()),
     created_at: Type.Integer(),
     updated_at: Type.Integer(),
+    personality: Nullable(Type.Array(Type.Integer())),
 });
 
 export type DbUser = RecursiveStatic<typeof User>;
