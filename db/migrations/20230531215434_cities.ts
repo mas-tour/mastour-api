@@ -1,6 +1,7 @@
 import { Kysely, sql } from 'kysely';
+import { faker } from '@faker-js/faker';
 
-const TABLE_NAME = 'guides';
+const TABLE_NAME = 'cities';
 
 export async function up(db: Kysely<any>): Promise<void> {
     await db.schema
@@ -8,15 +9,8 @@ export async function up(db: Kysely<any>): Promise<void> {
         .addColumn('id', 'uuid', (col) =>
             col.primaryKey().defaultTo(sql`gen_random_uuid()`)
         )
-        .addColumn('user_id', 'uuid', (col) =>
-            col.notNull().references('users.id')
-        )
-        .addColumn('city_id', 'uuid', (col) =>
-            col.notNull().references('cities.id')
-        )
-        .addColumn('detail_picture', 'text', (col) => col.notNull())
-        .addColumn('description', 'varchar', (col) => col.notNull())
-        .addColumn('price_per_day', 'bigint', (col) => col.notNull())
+        .addColumn('name', 'varchar', (col) => col.notNull().unique())
+        .addColumn('picture', 'text', (col) => col.notNull())
         .addColumn('created_at', 'bigint', (col) =>
             col.defaultTo(sql`EXTRACT(EPOCH FROM NOW()) * 1000`).notNull()
         )
@@ -26,9 +20,23 @@ export async function up(db: Kysely<any>): Promise<void> {
         .execute();
 
     await db.schema
-        .createIndex(`idx_${TABLE_NAME}_id`)
+        .createIndex(`idx_${TABLE_NAME}_id_name`)
         .on(TABLE_NAME)
-        .columns(['id'])
+        .columns(['id', 'name'])
+        .execute();
+
+    await db
+        .insertInto(TABLE_NAME)
+        .values([
+            {
+                name: 'Bandung',
+                picture: faker.image.urlLoremFlickr({ category: 'city' }),
+            },
+            {
+                name: 'Makassar',
+                picture: faker.image.urlLoremFlickr({ category: 'city' }),
+            },
+        ])
         .execute();
 }
 

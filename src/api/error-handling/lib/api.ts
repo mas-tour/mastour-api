@@ -32,7 +32,7 @@ function parseStatusCode<E>(error: AppError<E>): number {
     'pelanggaran batasan',
     'tidak sesuai',
     'telah berakhir',
-    'belum dimulai',
+    'belum dimulai'
   ];
   if (badRequestKeywords.some((kw) => reason.includes(kw))) {
     return StatusCodes.BAD_REQUEST;
