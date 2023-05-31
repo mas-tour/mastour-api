@@ -7,13 +7,16 @@ import {
 } from 'kysely';
 import { User } from './user.schema';
 import { RecursiveStatic } from './generics';
+import { Guide } from './guide.schema';
 
 export interface Database {
     users: UserTable;
+    guides: GuideTable;
 }
 
 export const DbSchema = {
     users: User,
+    guides: Guide,
 };
 
 type Db = RecursiveStatic<typeof DbSchema>;
@@ -39,3 +42,5 @@ type Entity<T> = {
 
 type UserTable = Modify<Db['users'], DefaultAutoCols>;
 export type Users = Entity<UserTable>;
+type GuideTable = Modify<Db['guides'], DefaultAutoCols>;
+export type Guides = Entity<GuideTable>;
