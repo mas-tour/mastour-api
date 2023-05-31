@@ -29,10 +29,8 @@ export const jwt: FastifyPluginAsync<JwtOptions> = fp<JwtOptions>(
   async (fastify, opts) => {
     fastify.register(jwtPlugin, opts).addHook('onRequest', async (request) => {
       try {
-        console.debug('masooeeekkkk');
         await request.jwtVerify();
       } catch (err) {
-        console.debug({ err });
         request.user = { id: undefined, username: undefined, email: undefined };
       }
     });

@@ -22,7 +22,6 @@ const matchmakingRoute: FastifyPluginAsync = async (
       },
     },
     async (request, reply) => {
-      console.debug({ user: request.user });
       const result = await data.survey(fastify.db, request.body, request.user.id??"");
 
       sendResult(result, reply, 200);

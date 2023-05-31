@@ -11,7 +11,6 @@ export async function survey(
   userId: string
 ): Promise<AppResult<Matchmaking['survey']['response']>> {
   try {
-    console.debug({ userId });
     const user = await db.updateTable("users").where("id", "=", userId).set(insertRecord).returningAll().executeTakeFirstOrThrow();
 
     return Ok({
