@@ -13,16 +13,19 @@ export async function build() {
         coerceTypes: 'array',
       },
     },
-    logger: {
-      transport: {
-        target: 'pino-pretty',
-        options: {
-          translateTime: 'HH:MM:ss Z',
-          colorize: true,
-          ignore: 'pid,hostname',
-        },
-      },
-    },
+    logger:
+      process.env.ENV === 'production'
+        ? true
+        : {
+            transport: {
+              target: 'pino-pretty',
+              options: {
+                translateTime: 'HH:MM:ss Z',
+                colorize: true,
+                ignore: 'pid,hostname',
+              },
+            },
+          },
   });
 
   async function closeGracefully(signal: string) {
