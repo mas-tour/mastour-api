@@ -7,6 +7,8 @@ export { FastifyInstance } from 'fastify';
 
 require('dotenv').config();
 
+const PORT: number = +(process.env.PORT || 8080);
+
 // ---------------------------------------------------------------------------
 // Set Up
 // ---------------------------------------------------------------------------
@@ -30,7 +32,7 @@ export async function request(
   const requestConfig = {
     headers,
     validateStatus: () => true,
-    url: `http://0.0.0.0:9000${config.path}`,
+    url: `http://0.0.0.0:${PORT}${config.path}`,
     withCredentials: true,
     ...conf,
   };
@@ -43,7 +45,7 @@ export async function request(
 
 export async function checkTestApp(): Promise<void> {
   try {
-    await request({ url: 'http://0.0.0.0:9000/health' });
+    await request({ url: `http://0.0.0.0:${PORT}/health` });
   } catch {
     throw Error('API server is off! Please run `pnpm set-up api`!');
   }

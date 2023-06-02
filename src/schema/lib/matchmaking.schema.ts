@@ -7,13 +7,12 @@ export const MatchmakingSchema = {
   survey: {
     path: '/survey',
     body: Type.Object({
-        personality: Type.Array(Type.Integer()),
+      answers: Type.Array(Type.Integer()),
     }),
     response: Type.Object({
-      data: DbSchema["users"],
+      data: DbSchema['users'],
     }),
   },
-  
 };
 
 export type Matchmaking = RecursiveStatic<typeof MatchmakingSchema>;

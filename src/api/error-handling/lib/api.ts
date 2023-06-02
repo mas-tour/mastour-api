@@ -32,7 +32,7 @@ function parseStatusCode<E>(error: AppError<E>): number {
     'pelanggaran batasan',
     'tidak sesuai',
     'telah berakhir',
-    'belum dimulai'
+    'belum dimulai',
   ];
   if (badRequestKeywords.some((kw) => reason.includes(kw))) {
     return StatusCodes.BAD_REQUEST;
@@ -55,7 +55,10 @@ function parseStatusCode<E>(error: AppError<E>): number {
   if (notFoundKeywords.some((kw) => reason.includes(kw))) {
     return StatusCodes.NOT_FOUND;
   }
-  if (error.message === 'Gagal masuk!') {
+  if (
+    error.message === 'Gagal masuk!' ||
+    error.message.includes('Unauthorized access')
+  ) {
     return StatusCodes.UNAUTHORIZED;
   }
   return StatusCodes.INTERNAL_SERVER_ERROR;
