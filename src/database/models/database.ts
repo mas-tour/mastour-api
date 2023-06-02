@@ -8,15 +8,18 @@ import {
 import { User } from './user.schema';
 import { RecursiveStatic } from './generics';
 import { Guide } from './guide.schema';
+import { City } from './city.schema';
 
 export interface Database {
     users: UserTable;
     guides: GuideTable;
+    cities: CityTable;
 }
 
 export const DbSchema = {
     users: User,
     guides: Guide,
+    cities: City,
 };
 
 type Db = RecursiveStatic<typeof DbSchema>;
@@ -42,5 +45,9 @@ type Entity<T> = {
 
 type UserTable = Modify<Db['users'], DefaultAutoCols>;
 export type Users = Entity<UserTable>;
+
 type GuideTable = Modify<Db['guides'], DefaultAutoCols>;
 export type Guides = Entity<GuideTable>;
+
+type CityTable = Modify<Db['cities'], DefaultAutoCols>;
+export type Cities = Entity<CityTable>;
