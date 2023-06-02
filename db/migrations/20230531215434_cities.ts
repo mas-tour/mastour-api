@@ -1,5 +1,4 @@
 import { Kysely, sql } from 'kysely';
-import { faker } from '@faker-js/faker';
 
 const TABLE_NAME = 'cities';
 
@@ -23,20 +22,6 @@ export async function up(db: Kysely<any>): Promise<void> {
         .createIndex(`idx_${TABLE_NAME}_id_name`)
         .on(TABLE_NAME)
         .columns(['id', 'name'])
-        .execute();
-
-    await db
-        .insertInto(TABLE_NAME)
-        .values([
-            {
-                name: 'Bandung',
-                picture: faker.image.urlLoremFlickr({ category: 'city' }),
-            },
-            {
-                name: 'Makassar',
-                picture: faker.image.urlLoremFlickr({ category: 'city' }),
-            },
-        ])
         .execute();
 }
 
