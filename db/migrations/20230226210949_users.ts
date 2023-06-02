@@ -8,7 +8,7 @@ export async function up(db: Kysely<any>): Promise<void> {
         .addColumn('id', 'uuid', (col) =>
             col.primaryKey().defaultTo(sql`gen_random_uuid()`)
         )
-        .addColumn('username', 'varchar(16)', (col) => col.notNull().unique())
+        .addColumn('username', 'varchar', (col) => col.notNull().unique())
         .addColumn('email', 'varchar', (col) => col.notNull().unique())
         .addColumn('password', 'text', (col) => col.notNull())
         .addColumn('name', 'varchar', (col) => col.notNull())
@@ -17,13 +17,14 @@ export async function up(db: Kysely<any>): Promise<void> {
         .addCheckConstraint('gender_enum', sql`gender IN ('male', 'female')`)
         .addColumn('birth_date', 'bigint', (col) => col.notNull())
         .addColumn('picture', 'text')
+        .addColumn('answers', sql`integer[25]`)
+        .addColumn('personality', 'integer')
         .addColumn('created_at', 'bigint', (col) =>
             col.defaultTo(sql`EXTRACT(EPOCH FROM NOW()) * 1000`).notNull()
         )
         .addColumn('updated_at', 'bigint', (col) =>
             col.defaultTo(sql`EXTRACT(EPOCH FROM NOW()) * 1000`).notNull()
         )
-        .addColumn("personality", sql`integer[25]`)
         .execute();
 
     await db.schema

@@ -9,6 +9,7 @@
     "test": "jest",
     "migrate-latest": "ts-node --esm db/latest.ts",
     "migrate-rollback": "ts-node --esm db/rollback.ts",
+    "db-seed": "ts-node --esm db/seed/main.ts",
     "check-in-dance": "./scripts/check-in-dance",
     "set-up": "./scripts/set-up",
     "psql": "./scripts/psql"

@@ -11,9 +11,10 @@ export const User = Type.Object({
     gender: Type.Union([Type.Literal('male'), Type.Literal('female')]),
     birth_date: Type.Integer(),
     picture: Nullable(Type.String()),
+    answers: Nullable(Type.Array(Type.Integer())),
+    personality: Nullable(Type.Integer()),
     created_at: Type.Integer(),
     updated_at: Type.Integer(),
-    personality: Nullable(Type.Array(Type.Integer())),
 });
 
 export type DbUser = RecursiveStatic<typeof User>;
