@@ -7,9 +7,11 @@ import {
   MatchmakingSchema,
   GuidesSchema,
   CitiesSchema,
+  ProfileSchema,
 } from '../schema';
 import { guidesPlugin } from './guides';
 import { citiesPlugin } from './cities';
+import { profilePlugin } from './profile';
 
 export const appRoutes: FastifyPluginAsync = async (app) => {
   app.get('/health', (_, reply) => {
@@ -36,5 +38,9 @@ export const appRoutes: FastifyPluginAsync = async (app) => {
 
   app.register(citiesPlugin, {
     prefix: `${CitiesSchema.path}`,
+  });
+
+  app.register(profilePlugin, {
+    prefix: `${ProfileSchema.path}`,
   });
 };
