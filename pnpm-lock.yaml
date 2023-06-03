@@ -23,9 +23,18 @@ dependencies:
   '@fastify/swagger-ui':
     specifier: ^1.8.1
     version: 1.8.1
+  '@fastify/type-provider-typebox':
+    specifier: ^3.2.0
+    version: 3.2.0(@sinclair/typebox@0.28.11)
   '@sinclair/typebox':
     specifier: ^0.28.11
     version: 0.28.11
+  ajv:
+    specifier: ^8.12.0
+    version: 8.12.0
+  ajv-formats:
+    specifier: ^2.1.1
+    version: 2.1.1(ajv@8.12.0)
   axios:
     specifier: ^1.4.0
     version: 1.4.0
@@ -598,6 +607,14 @@ packages:
       yaml: 2.2.2
     transitivePeerDependencies:
       - supports-color
+    dev: false
+
+  /@fastify/type-provider-typebox@3.2.0(@sinclair/typebox@0.28.11):
+    resolution: {integrity: sha512-Ec+dHVfb9wovQ/jclkDbzTshHTtSsDmTGhls6S/TM3QIcx7682Jq8/W0kHXW3ylBUBEtcel87B+PuwH17TRDAw==}
+    peerDependencies:
+      '@sinclair/typebox': ^0.28.0
+    dependencies:
+      '@sinclair/typebox': 0.28.11
     dev: false
 
   /@humanwhocodes/config-array@0.11.8:

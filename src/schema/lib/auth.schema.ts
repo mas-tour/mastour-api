@@ -7,7 +7,13 @@ export const AuthSchema = {
   signup: {
     path: '/sign-up',
     body: Type.Intersect([
-      Type.Omit(DbSchema['users'], ['id', 'created_at', 'updated_at', 'personality']),
+      Type.Omit(DbSchema['users'], [
+        'id',
+        'created_at',
+        'updated_at',
+        'personality',
+        'answers',
+      ]),
     ]),
     response: Type.Object({
       data: Type.Pick(DbSchema['users'], ['id', 'username', 'email']),
