@@ -30,7 +30,6 @@ const authRoute: FastifyPluginAsync<JwtOptions & BcryptOpts> = async (
         request.body,
         opts.saltRounds
       );
-      console.log('authRoute#(anon) result: %s', result); // __AUTO_GENERATED_PRINT_VAR__
 
       sendResult(result, reply, 201);
     }

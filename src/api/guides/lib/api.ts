@@ -4,23 +4,24 @@ import { Guides, GuidesSchema, addErrorSchemas } from '../../../schema';
 import { sendResult } from '../../error-handling';
 import * as data from './data';
 
-const guidesRoute: FastifyPluginAsync = async (
-  fastify,
-) => {
-
+const guidesRoute: FastifyPluginAsync = async (fastify) => {
   fastify.get<{
+    Querystring: Guides['readMany']['query'];
     Reply: Guides['readMany']['response'];
   }>(
-    `${GuidesSchema.path}${GuidesSchema.readMany.path}`,
+    GuidesSchema.path,
     {
       schema: {
         tags: ['guides', 'readMany'],
+        // TODO(Ravi): If not commented it returns an error that it is required
+        // even though it exists
+        //querystring: GuidesSchema.readMany.query,
         response: addErrorSchemas({ 200: GuidesSchema.readMany.response }),
-        security: [{ bearerAuth: [] }]
+        security: [{ bearerAuth: [] }],
       },
     },
-    async (_request, reply) => {
-      const result = await data.readMany(fastify.db);
+    async (request, reply) => {
+      const result = await data.readMany(fastify.db, request.query);
 
       sendResult(result, reply, 200);
     }
