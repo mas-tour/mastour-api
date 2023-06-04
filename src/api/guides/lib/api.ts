@@ -26,6 +26,26 @@ const guidesRoute: FastifyPluginAsync = async (fastify) => {
       sendResult(result, reply, 200);
     }
   );
+
+  fastify.get<{
+    Params: Guides['read']['params'];
+    Reply: Guides['read']['response'];
+  }>(
+    `${GuidesSchema.path}/:id`,
+    {
+      schema: {
+        tags: ['guides', 'read'],
+        params: GuidesSchema.read.params,
+        response: addErrorSchemas({ 200: GuidesSchema.read.response }),
+        security: [{ bearerAuth: [] }],
+      },
+    },
+    async (request, reply) => {
+      const result = await data.read(fastify.db, request.params);
+
+      sendResult(result, reply, 200);
+    }
+  );
 };
 
 export const guidesPlugin = fp(guidesRoute, {

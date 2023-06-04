@@ -30,6 +30,25 @@ export const GuidesSchema = {
       pagination: PaginationInfoSchema,
     }),
   },
+  read: {
+    params: Type.Object({
+      id: Type.String({ format: 'uuid' }),
+    }),
+    response: Type.Object({
+      data: Type.Intersect([
+        Type.Omit(DbSchema['users'], [
+          'id',
+          'password',
+          'created_at',
+          'updated_at',
+        ]),
+        DbSchema['guides'],
+        Type.Object({
+          city: Type.String(),
+        }),
+      ]),
+    }),
+  },
 };
 
 export type Guides = RecursiveStatic<typeof GuidesSchema>;

@@ -42,3 +42,38 @@ export async function readMany(
     return Err(toAppError(err));
   }
 }
+
+export async function read(
+  db: Kysely<Database>,
+  opts: Guides['read']['params']
+): Promise<AppResult<Guides['read']['response']>> {
+  try {
+    const query = db
+      .selectFrom('guides')
+      .innerJoin('users', 'users.id', 'guides.user_id')
+      .innerJoin('cities', 'cities.id', 'guides.city_id')
+      .where('guides.id', '=', opts.id);
+
+    const guides = await query
+      .selectAll('guides')
+      .select([
+        'users.username as username',
+        'users.name as name',
+        'users.picture as picture',
+        'users.email',
+        'users.gender',
+        'users.answers',
+        'users.personality',
+        'users.phone_number',
+        'users.birth_date',
+        'cities.name as city',
+      ])
+      .executeTakeFirstOrThrow();
+
+    return Ok({
+      data: guides,
+    });
+  } catch (err) {
+    return Err(toAppError(err));
+  }
+}
