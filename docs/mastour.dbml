@@ -1,0 +1,84 @@
+Project MasTour {
+  database_type: 'PostgreSQL'
+  Note: '''
+    # MasTour Database
+    **markdown content here**
+  '''
+}
+
+// TODO()
+
+Table users {
+  id uuid [pk, not null]
+  username varchar(16) [not null, unique]
+  email varchar [not null, unique]
+  password text [not null]
+  name varchar [not null]
+  phone_number varchar [not null]
+  gender genders [not null]
+  birth_date bigint [not null]
+  picture text
+  answers integer[25]
+  personility int2
+}
+
+Table guides {
+  id uuid [pk, not null]
+  user_id uuid [not null, ref: - users.id]
+  city_id uuid [not null, ref: > cities.id]
+  background_picture text
+  detail_picture text
+  description text
+  price_per_day bigint [not null]
+}
+
+Table guide_categories {
+  id uuid [pk, not null]
+  guide_id uuid [ref: > guides.id, not null]
+  category_id uuid [ref: > categories.id, not null]
+}
+
+Table categories {
+  id uuid [pk, not null]
+  name varchar [not null]
+  slug varchar [not null, unique]
+}
+
+Table ordered_guides {
+  id uuid [pk, not null]
+  user_id uuid [ref: > users.id, not null]
+  guide_id uuid [ref: > guides.id, not null]
+  status order_status [not null]
+  start_date bigint [not null]
+  end_date bigint [not null]
+}
+
+Table cities {
+  id uuid [pk, not null]
+  name varchar [not null]
+  picture varchar
+}
+
+Table guide_top_places {
+  id uuid [pk, not null]
+  guide_id uuid [ref: > guides.id, not null]
+  place_id uuid [ref: > places.id, not null]
+}
+
+Table places {
+  id uuid [pk, not null]
+  name varchar [not null]
+  picture text [not null]
+}
+
+enum genders {
+  male
+  female
+}
+
+enum order_status {
+  pending
+  confirmed
+  on_going
+  completed
+}

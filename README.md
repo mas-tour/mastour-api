@@ -1,5 +1,9 @@
 # MasTour Backend API
 
+## Documentation
+
+-   [ERD](https://dbdocs.io/excalios/MasTour)
+
 ## Setup Project
 
 1. Clone the project
