@@ -1,5 +1,5 @@
 import { Kysely, sql } from 'kysely';
-import { Database } from '../../../database';
+import { Categories, Database } from '../../../database';
 import { Guides } from '../../../schema';
 import { AppResult, Err, Ok, toAppError } from '../../error-handling';
 import * as RM from '../../shared/lib/read-many';
@@ -13,6 +13,23 @@ export async function readMany(
       .selectFrom('guides')
       .innerJoin('users', 'users.id', 'guides.user_id')
       .innerJoin('cities', 'cities.id', 'guides.city_id')
+      .leftJoin(
+        db
+          .selectFrom('guide_categories')
+          .leftJoin(
+            'categories',
+            'categories.id',
+            'guide_categories.category_id'
+          )
+          .select([
+            'guide_categories.guide_id',
+            sql`jsonb_agg(categories.*)`.as('categories'),
+          ])
+          .groupBy('guide_categories.guide_id')
+          .as('categories'),
+        'guides.id',
+        'categories.guide_id'
+      )
       .$if(!!opts.city_id, (qb) => qb.where('city_id', '=', opts.city_id ?? ''))
       .$call((qb) => RM.search(qb, opts));
 
@@ -25,6 +42,7 @@ export async function readMany(
         'users.name as name',
         'users.picture as picture',
         'cities.name as city',
+        sql<Categories['select'][]>`categories.categories`.as('categories'),
       ])
       .orderBy(sql.raw(orderBy), direction)
       .$call((qb) => RM.paginate(qb, opts))
@@ -52,6 +70,23 @@ export async function read(
       .selectFrom('guides')
       .innerJoin('users', 'users.id', 'guides.user_id')
       .innerJoin('cities', 'cities.id', 'guides.city_id')
+      .leftJoin(
+        db
+          .selectFrom('guide_categories')
+          .leftJoin(
+            'categories',
+            'categories.id',
+            'guide_categories.category_id'
+          )
+          .select([
+            'guide_categories.guide_id',
+            sql`jsonb_agg(categories.*)`.as('categories'),
+          ])
+          .groupBy('guide_categories.guide_id')
+          .as('categories'),
+        'guides.id',
+        'categories.guide_id'
+      )
       .where('guides.id', '=', opts.id);
 
     const guides = await query
@@ -67,6 +102,7 @@ export async function read(
         'users.phone_number',
         'users.birth_date',
         'cities.name as city',
+        sql<Categories['select'][]>`categories.categories`.as('categories'),
       ])
       .executeTakeFirstOrThrow();
 

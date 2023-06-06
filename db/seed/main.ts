@@ -1,4 +1,10 @@
-import { Database, Cities, Users, Guides } from '../../src/database';
+import {
+    Database,
+    Cities,
+    Users,
+    Guides,
+    Categories,
+} from '../../src/database';
 import { Kysely, PostgresDialect, sql } from 'kysely';
 import { Pool } from 'pg';
 import { faker } from '@faker-js/faker';
@@ -16,7 +22,8 @@ async function initSeedData(): Promise<void> {
     console.info('Initialize seed data...');
     try {
         const cities = await initCities(db);
-        await initGuides(db, cities);
+        const categories = await initCategories(db);
+        await initGuides(db, cities, categories);
         console.info(
             'Seed data initialized successfully. Exit seeding process...'
         );
@@ -70,7 +77,11 @@ async function initCities(db: Kysely<Database>) {
     return inserted;
 }
 
-async function initGuides(db: Kysely<Database>, cities: Cities['select'][]) {
+async function initGuides(
+    db: Kysely<Database>,
+    cities: Cities['select'][],
+    categories: Categories['select'][]
+) {
     console.log('Inserting guides data...');
     const countGuides = await countRows(db, 'guides');
     if (countGuides > 0) {
@@ -133,16 +144,94 @@ async function initGuides(db: Kysely<Database>, cities: Cities['select'][]) {
                 price_per_day: faker.number.int({ min: 50000 }),
             } as Guides['insert'];
         });
-        await trx.insertInto('guides').values(guides).returningAll().execute();
+        const insertedGuides = await trx
+            .insertInto('guides')
+            .values(guides)
+            .returningAll()
+            .execute();
+
+        const categoryIds = categories.map((category) => category.id);
+        const insertGuideCategory = insertedGuides
+            .map((row) => {
+                const pickedCategories = faker.helpers.arrayElements(
+                    categoryIds,
+                    3
+                );
+
+                return pickedCategories.map((innerRow) => ({
+                    guide_id: row.id,
+                    category_id: innerRow,
+                }));
+            })
+            .flat();
+
+        await trx
+            .insertInto('guide_categories')
+            .values(insertGuideCategory)
+            .returningAll()
+            .execute();
 
         return await trx
             .selectFrom('guides')
             .innerJoin('users', 'users.id', 'guides.user_id')
             .innerJoin('cities', 'cities.id', 'guides.city_id')
+            .leftJoin(
+                db
+                    .selectFrom('guide_categories')
+                    .leftJoin(
+                        'categories',
+                        'categories.id',
+                        'guide_categories.category_id'
+                    )
+                    .select([
+                        'guide_categories.guide_id',
+                        sql`jsonb_agg(categories.*)`.as('categories'),
+                    ])
+                    .groupBy('guide_categories.guide_id')
+                    .as('categories'),
+                'guides.id',
+                'categories.guide_id'
+            )
             .selectAll()
             .execute();
     });
 
     console.log(`Inserted ${inserted.length} guides data!`);
+    return inserted;
+}
+
+async function initCategories(db: Kysely<Database>) {
+    console.log('Inserting categories data...');
+    const countCategories = await countRows(db, 'categories');
+    if (countCategories > 0) {
+        console.log('Categories data already exist!');
+        return await db.selectFrom('categories').selectAll().execute();
+    }
+
+    const categories = [
+        'Historical',
+        'Adventure',
+        'Nature and Wildlife',
+        'Culinary',
+        'Wellness and Retreat',
+        'Architectural',
+        'Educational',
+        'Shopping',
+    ];
+
+    const inserted = await db
+        .insertInto('categories')
+        .values(
+            categories.map(
+                (row) =>
+                    ({
+                        name: row,
+                        slug: row.toLowerCase().replace(/ /g, '-'),
+                    } as Categories['insert'])
+            )
+        )
+        .returningAll()
+        .execute();
+    console.log(`Inserted ${inserted.length} categories data!`);
     return inserted;
 }

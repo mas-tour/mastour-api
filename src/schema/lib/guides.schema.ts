@@ -24,6 +24,7 @@ export const GuidesSchema = {
           ]),
           Type.Object({
             city: Type.String(),
+            categories: Type.Array(DbSchema['categories']),
           }),
         ])
       ),
@@ -45,6 +46,7 @@ export const GuidesSchema = {
         DbSchema['guides'],
         Type.Object({
           city: Type.String(),
+          categories: Type.Array(DbSchema['categories']),
         }),
       ]),
     }),
