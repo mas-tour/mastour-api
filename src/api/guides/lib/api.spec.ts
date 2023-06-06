@@ -1,3 +1,4 @@
+import 'jest-extended';
 import * as T from '../../../tests';
 import { faker } from '@faker-js/faker';
 import * as bcrypt from 'bcrypt';
@@ -62,6 +63,20 @@ describe('Guides endpoints', () => {
       .returningAll()
       .executeTakeFirstOrThrow();
 
+    const categories = await db.selectFrom('categories').selectAll().execute();
+    const categoryIds = categories.map((row) => row.id);
+    const pickedCategories = faker.helpers.arrayElements(categoryIds, 3);
+    const insertGuideCategory = pickedCategories.map((innerRow) => ({
+      guide_id: guide.id,
+      category_id: innerRow,
+    }));
+
+    await db
+      .insertInto('guide_categories')
+      .values(insertGuideCategory)
+      .returningAll()
+      .execute();
+
     const getAllResponse = await T.request({
       method: 'GET',
       path: '/guides',
@@ -73,6 +88,7 @@ describe('Guides endpoints', () => {
     expect(getAllResponse.status).toBe(200);
     expect(getAllResponse.data.data).toBeInstanceOf(Array);
     expect(getAllResponse.data.data.length).toBeGreaterThan(0);
+    expect(getAllResponse.data.data[0].categories).toBeInstanceOf(Array);
 
     const getOneResponse = await T.request({
       method: 'GET',
@@ -96,7 +112,17 @@ describe('Guides endpoints', () => {
       description: guide.description,
       price_per_day: +guide.price_per_day,
       city: expect.any(String),
+      categories: expect.any(Array),
     });
+    expect(getOneResponse.data.data[0].categories).toIncludeSameMembers(
+      categories
+        .filter((row) => pickedCategories.includes(row.id))
+        .map((row) => ({
+          ...row,
+          updated_at: +row.updated_at,
+          created_at: +row.created_at,
+        }))
+    );
 
     const { password: _password, ...userWithoutPassword } = user;
     const getDetailResponse = await T.request({
@@ -109,12 +135,26 @@ describe('Guides endpoints', () => {
       ...guide,
       city: expect.any(String),
       id: guide.id,
+      categories: expect.any(Array),
       price_per_day: +guide.price_per_day,
       birth_date: +user.birth_date,
       created_at: +guide.created_at,
       updated_at: +guide.updated_at,
     });
+    expect(getDetailResponse.data.data.categories).toIncludeSameMembers(
+      categories
+        .filter((row) => pickedCategories.includes(row.id))
+        .map((row) => ({
+          ...row,
+          updated_at: +row.updated_at,
+          created_at: +row.created_at,
+        }))
+    );
 
+    await db
+      .deleteFrom('guide_categories')
+      .where('guide_id', '=', guide.id)
+      .executeTakeFirstOrThrow();
     await db
       .deleteFrom('guides')
       .where('id', '=', guide.id)

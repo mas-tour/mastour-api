@@ -4,10 +4,7 @@ import { Cities, CitiesSchema, addErrorSchemas } from '../../../schema';
 import { sendResult } from '../../error-handling';
 import * as data from './data';
 
-const citiesRoute: FastifyPluginAsync = async (
-  fastify,
-) => {
-
+const citiesRoute: FastifyPluginAsync = async (fastify) => {
   fastify.get<{
     Reply: Cities['readMany']['response'];
   }>(
@@ -16,7 +13,7 @@ const citiesRoute: FastifyPluginAsync = async (
       schema: {
         tags: ['cities', 'readMany'],
         response: addErrorSchemas({ 200: CitiesSchema.readMany.response }),
-        security: [{ bearerAuth: [] }]
+        security: [{ bearerAuth: [] }],
       },
     },
     async (_request, reply) => {
