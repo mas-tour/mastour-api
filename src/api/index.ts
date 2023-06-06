@@ -9,11 +9,13 @@ import {
   CategoriesSchema,
   ProfileSchema,
   CitiesSchema,
+  PlacesSchema,
 } from '../schema';
 import { guidesPlugin } from './guides';
 import { citiesPlugin } from './cities';
 import { profilePlugin } from './profile';
 import { categoriesPlugin } from './categories';
+import { placesPlugin } from './places';
 
 export const appRoutes: FastifyPluginAsync = async (app) => {
   app.get('/health', (_, reply) => {
@@ -48,5 +50,9 @@ export const appRoutes: FastifyPluginAsync = async (app) => {
 
   app.register(categoriesPlugin, {
     prefix: `${CategoriesSchema.path}`,
+  });
+
+  app.register(placesPlugin, {
+    prefix: `${PlacesSchema.path}`,
   });
 };

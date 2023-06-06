@@ -4,6 +4,7 @@ import {
     Users,
     Guides,
     Categories,
+    Places,
 } from '../../src/database';
 import { Kysely, PostgresDialect, sql } from 'kysely';
 import { Pool } from 'pg';
@@ -23,7 +24,8 @@ async function initSeedData(): Promise<void> {
     try {
         const cities = await initCities(db);
         const categories = await initCategories(db);
-        await initGuides(db, cities, categories);
+        const places = await initPlaces(db);
+        await initGuides(db, cities, categories, places);
         console.info(
             'Seed data initialized successfully. Exit seeding process...'
         );
@@ -80,7 +82,8 @@ async function initCities(db: Kysely<Database>) {
 async function initGuides(
     db: Kysely<Database>,
     cities: Cities['select'][],
-    categories: Categories['select'][]
+    categories: Categories['select'][],
+    places: Places['select'][]
 ) {
     console.log('Inserting guides data...');
     const countGuides = await countRows(db, 'guides');
@@ -165,9 +168,30 @@ async function initGuides(
             })
             .flat();
 
+        const placeIds = places.map((place) => place.id);
+        const insertGuideTopPlaces = insertedGuides
+            .map((row) => {
+                const pickedPlaces = faker.helpers.arrayElements(
+                    placeIds,
+                    3
+                );
+
+                return pickedPlaces.map((innerRow) => ({
+                    guide_id: row.id,
+                    place_id: innerRow,
+                }));
+            })
+            .flat();
+
         await trx
             .insertInto('guide_categories')
             .values(insertGuideCategory)
+            .returningAll()
+            .execute();
+        
+        await trx
+            .insertInto('guide_top_places')
+            .values(insertGuideTopPlaces)
             .returningAll()
             .execute();
 
@@ -191,6 +215,23 @@ async function initGuides(
                     .as('categories'),
                 'guides.id',
                 'categories.guide_id'
+            )
+            .leftJoin(
+                db
+                    .selectFrom('guide_top_places')
+                    .leftJoin(
+                        'places',
+                        'places.id',
+                        'guide_top_places.place_id'
+                    )
+                    .select([
+                        'guide_top_places.guide_id',
+                        sql`jsonb_agg(places.*)`.as('places'),
+                    ])
+                    .groupBy('guide_top_places.guide_id')
+                    .as('places'),
+                'guides.id',
+                'places.guide_id'
             )
             .selectAll()
             .execute();
@@ -234,4 +275,34 @@ async function initCategories(db: Kysely<Database>) {
         .execute();
     console.log(`Inserted ${inserted.length} categories data!`);
     return inserted;
+
+    
+}
+
+async function initPlaces(db: Kysely<Database>) {
+    console.log('Inserting places data...');
+    const countPlaces = await countRows(db, 'places');
+    if (countPlaces > 0) {
+        console.log('Places data already exist!');
+        return await db.selectFrom('places').selectAll().execute();
+    }
+
+    const places = Array(6).fill(null).map( () => {
+        return{
+            name: faker.location.street(),
+            picture: faker.image.url(),
+        }as Places["insert"]
+    })
+
+    const inserted = await db
+        .insertInto('places')
+        .values(
+            places
+        )
+        .returningAll()
+        .execute();
+    console.log(`Inserted ${inserted.length} places data!`);
+    return inserted;
+
+
 }

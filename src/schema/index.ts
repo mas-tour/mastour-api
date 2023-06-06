@@ -6,3 +6,4 @@ export * from './lib/categories.schema';
 export * from './lib/cities.schema';
 export * from './lib/profile.schema';
 export * from './lib/read-many';
+export * from './lib/places.schema';
