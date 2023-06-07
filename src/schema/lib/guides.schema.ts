@@ -47,6 +47,7 @@ export const GuidesSchema = {
         Type.Object({
           city: Type.String(),
           categories: Type.Array(DbSchema['categories']),
+          top_places: Type.Array(DbSchema['places']),
         }),
       ]),
     }),

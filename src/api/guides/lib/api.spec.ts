@@ -77,6 +77,20 @@ describe('Guides endpoints', () => {
       .returningAll()
       .execute();
 
+    const places = await db.selectFrom('places').selectAll().execute();
+    const placeIds = places.map((row) => row.id);
+    const pickedPlaces = faker.helpers.arrayElements(placeIds, 3);
+    const insertGuidePlaces = pickedPlaces.map((innerRow) => ({
+      guide_id: guide.id,
+      place_id: innerRow,
+    }));
+
+    await db
+      .insertInto('guide_top_places')
+      .values(insertGuidePlaces)
+      .returningAll()
+      .execute();
+
     const getAllResponse = await T.request({
       method: 'GET',
       path: '/guides',
@@ -136,6 +150,7 @@ describe('Guides endpoints', () => {
       city: expect.any(String),
       id: guide.id,
       categories: expect.any(Array),
+      top_places: expect.any(Array),
       price_per_day: +guide.price_per_day,
       birth_date: +user.birth_date,
       created_at: +guide.created_at,
@@ -150,11 +165,24 @@ describe('Guides endpoints', () => {
           created_at: +row.created_at,
         }))
     );
+    expect(getDetailResponse.data.data.top_places).toIncludeSameMembers(
+      places
+        .filter((row) => pickedPlaces.includes(row.id))
+        .map((row) => ({
+          ...row,
+          updated_at: +row.updated_at,
+          created_at: +row.created_at,
+        }))
+    );
 
+    await db
+      .deleteFrom('guide_top_places')
+      .where('guide_id', '=', guide.id)
+      .execute();
     await db
       .deleteFrom('guide_categories')
       .where('guide_id', '=', guide.id)
-      .executeTakeFirstOrThrow();
+      .execute();
     await db
       .deleteFrom('guides')
       .where('id', '=', guide.id)
