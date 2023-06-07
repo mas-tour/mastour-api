@@ -13,6 +13,7 @@ import { Category } from './category.schema';
 import { GuideCategory } from './guide_category.schema';
 import { Place } from './place.schema';
 import { GuideTopPlace } from './guide_top_places.schema';
+import { OrderedGuide } from './ordered_guides.schema';
 
 export interface Database {
     users: UserTable;
@@ -22,6 +23,7 @@ export interface Database {
     guide_categories: GuideCategoryTable;
     places: PlaceTable;
     guide_top_places: GuideTopPlaceTable;
+    ordered_guides: OrderedGuideTable;
 }
 
 export const DbSchema = {
@@ -32,6 +34,7 @@ export const DbSchema = {
     guide_categories: GuideCategory,
     places: Place,
     guide_top_places: GuideTopPlace,
+    ordered_guides: OrderedGuide,
 };
 
 type Db = RecursiveStatic<typeof DbSchema>;
@@ -75,3 +78,6 @@ export type Places = Entity<PlaceTable>;
 
 type GuideTopPlaceTable = Modify<Db['guide_top_places'], DefaultAutoCols>;
 export type GuideTopPlaces = Entity<GuideTopPlaceTable>;
+
+type OrderedGuideTable = Modify<Db['ordered_guides'], DefaultAutoCols>;
+export type OrderedGuides = Entity<OrderedGuideTable>;
