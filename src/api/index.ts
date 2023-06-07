@@ -10,12 +10,14 @@ import {
   ProfileSchema,
   CitiesSchema,
   PlacesSchema,
+  OrderedGuidesSchema,
 } from '../schema';
 import { guidesPlugin } from './guides';
 import { citiesPlugin } from './cities';
 import { profilePlugin } from './profile';
 import { categoriesPlugin } from './categories';
 import { placesPlugin } from './places';
+import { orderedGuidesPlugin } from './ordered_guides';
 
 export const appRoutes: FastifyPluginAsync = async (app) => {
   app.get('/health', (_, reply) => {
@@ -54,5 +56,9 @@ export const appRoutes: FastifyPluginAsync = async (app) => {
 
   app.register(placesPlugin, {
     prefix: `${PlacesSchema.path}`,
+  });
+
+  app.register(orderedGuidesPlugin, {
+    prefix: `${OrderedGuidesSchema.path}`,
   });
 };

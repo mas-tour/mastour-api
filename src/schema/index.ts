@@ -7,3 +7,4 @@ export * from './lib/cities.schema';
 export * from './lib/profile.schema';
 export * from './lib/read-many';
 export * from './lib/places.schema';
+export * from './lib/ordered_guides.schema';
