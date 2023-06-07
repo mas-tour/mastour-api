@@ -5,3 +5,5 @@ export * from './guide.schema';
 export * from './city.schema';
 export * from './category.schema';
 export * from './guide_category.schema';
+export * from './place.schema';
+export * from './guide_top_places.schema'
