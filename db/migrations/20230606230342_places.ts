@@ -17,11 +17,11 @@ export async function up(db: Kysely<any>): Promise<void> {
             col.defaultTo(sql`EXTRACT(EPOCH FROM NOW()) * 1000`).notNull()
         )
         .execute();
-    //picture masukin ke index juga gk?
+
     await db.schema
-        .createIndex(`idx_${TABLE_NAME}_id_name_picture`)
+        .createIndex(`idx_${TABLE_NAME}_id`)
         .on(TABLE_NAME)
-        .columns(['id', 'name', 'picture'])
+        .columns(['id'])
         .execute();
 }
 
