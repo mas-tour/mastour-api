@@ -1,5 +1,5 @@
 import { Kysely, sql } from 'kysely';
-import { Categories, Database } from '../../../database';
+import { Categories, Database, Places } from '../../../database';
 import { Guides } from '../../../schema';
 import { AppResult, Err, Ok, toAppError } from '../../error-handling';
 import * as RM from '../../shared/lib/read-many';
@@ -87,6 +87,19 @@ export async function read(
         'guides.id',
         'categories.guide_id'
       )
+      .leftJoin(
+        db
+          .selectFrom('guide_top_places')
+          .leftJoin('places', 'places.id', 'guide_top_places.place_id')
+          .select([
+            'guide_top_places.guide_id',
+            sql`jsonb_agg(places.*)`.as('top_places'),
+          ])
+          .groupBy('guide_top_places.guide_id')
+          .as('top_places'),
+        'guides.id',
+        'top_places.guide_id'
+      )
       .where('guides.id', '=', opts.id);
 
     const guides = await query
@@ -103,6 +116,7 @@ export async function read(
         'users.birth_date',
         'cities.name as city',
         sql<Categories['select'][]>`categories.categories`.as('categories'),
+        sql<Places['select'][]>`top_places.top_places`.as('top_places'),
       ])
       .executeTakeFirstOrThrow();
 
