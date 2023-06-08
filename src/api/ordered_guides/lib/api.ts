@@ -1,6 +1,7 @@
 import { FastifyPluginAsync } from 'fastify';
 import fp from 'fastify-plugin';
 import {
+  GuidesSchema,
   OrderedGuides,
   OrderedGuidesSchema,
   addErrorSchemas,
@@ -40,9 +41,31 @@ const orderedGuidesRoute: FastifyPluginAsync = async (fastify) => {
       }
     }
   );
+  fastify.get<{
+    Querystring: OrderedGuides['readMany']['query'];  //something wrong?
+    Reply: OrderedGuides['readMany']['response'];
+  }>(
+    GuidesSchema.path,
+    {
+      schema: {
+        tags: ['guides', 'readMany'],
+        // TODO(Ravi): If not commented it returns an error that it is required
+        // even though it exists
+        //querystring: GuidesSchema.readMany.query,
+        response: addErrorSchemas({ 200: GuidesSchema.readMany.response }),
+        security: [{ bearerAuth: [] }],
+      },
+    },
+    async (request, reply) => {
+      const result = await data.readMany(fastify.db, request.query);
+
+      sendResult(result, reply, 200);
+    }
+  );
 };
 
 export const orderedGuidesPlugin = fp(orderedGuidesRoute, {
   fastify: '4.x',
   name: 'mastour-ordered-guides',
 });
+

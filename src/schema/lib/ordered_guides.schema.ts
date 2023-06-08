@@ -16,6 +16,16 @@ export const OrderedGuidesSchema = {
       data: DbSchema['ordered_guides'],
     }),
   },
+  readMany: {
+    path:'/history',
+    response: Type.Object({    
+      data: Type.Array(
+        Type.Intersect([ DbSchema['users'], DbSchema['ordered_guides'],
+        Type.Object({ city: Type.String(), count_day: Type.Integer(), total_price: Type.Integer(),}),
+        ])
+      ),
+    })
+  }
 };
 
 // TODO(fatur): Ini type data buat response nanti history
