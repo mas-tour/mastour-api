@@ -51,14 +51,25 @@ const orderedGuidesRoute: FastifyPluginAsync = async (fastify) => {
         // TODO(Ravi): If not commented it returns an error that it is required
         // even though it exists
         //querystring: GuidesSchema.readMany.query,
-        response: addErrorSchemas({ 200: OrderedGuidesSchema.readMany.response }),
+        response: addErrorSchemas({
+          200: OrderedGuidesSchema.readMany.response,
+        }),
         security: [{ bearerAuth: [] }],
       },
     },
     async (request, reply) => {
-      const result = await data.readMany(fastify.db, request.query);
+      if (request.user && request.user.id) {
+        const result = await data.readMany(
+          fastify.db,
+          request.query,
+          request.user.id
+        );
 
-      sendResult(result, reply, 200);
+        sendResult(result, reply, 200);
+      } else {
+        const result = Err(toAppError('Unathorized access'));
+        sendResult(result, reply, 401);
+      }
     }
   );
 };
@@ -67,4 +78,3 @@ export const orderedGuidesPlugin = fp(orderedGuidesRoute, {
   fastify: '4.x',
   name: 'mastour-ordered-guides',
 });
-
