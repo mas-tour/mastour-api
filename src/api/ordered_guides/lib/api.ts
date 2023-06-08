@@ -40,9 +40,31 @@ const orderedGuidesRoute: FastifyPluginAsync = async (fastify) => {
       }
     }
   );
+  fastify.get<{
+    Querystring: OrderedGuides['readMany']['query'];
+    Reply: OrderedGuides['readMany']['response'];
+  }>(
+    `${OrderedGuidesSchema.path}${OrderedGuidesSchema.readMany.path}`,
+    {
+      schema: {
+        tags: ['ordered_guides', 'readMany'],
+        // TODO(Ravi): If not commented it returns an error that it is required
+        // even though it exists
+        //querystring: GuidesSchema.readMany.query,
+        response: addErrorSchemas({ 200: OrderedGuidesSchema.readMany.response }),
+        security: [{ bearerAuth: [] }],
+      },
+    },
+    async (request, reply) => {
+      const result = await data.readMany(fastify.db, request.query);
+
+      sendResult(result, reply, 200);
+    }
+  );
 };
 
 export const orderedGuidesPlugin = fp(orderedGuidesRoute, {
   fastify: '4.x',
   name: 'mastour-ordered-guides',
 });
+

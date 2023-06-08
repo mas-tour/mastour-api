@@ -1,7 +1,8 @@
-import { Kysely } from 'kysely';
+import { Kysely, sql } from 'kysely';
 import { Database } from '../../../database';
 import { OrderedGuides } from '../../../schema';
 import { AppResult, Err, Ok, toAppError } from '../../error-handling';
+import * as RM from '../../shared/lib/read-many';
 
 export async function book(
   db: Kysely<Database>,
@@ -31,6 +32,53 @@ export async function book(
 
     return Ok({
       data: result,
+    });
+  } catch (err) {
+    return Err(toAppError(err));
+  }
+}
+
+//fix
+export async function readMany(
+  db: Kysely<Database>,
+  opts: OrderedGuides['readMany']['query']
+): Promise<AppResult<OrderedGuides['readMany']['response']>> {
+  try {
+    const query = db
+    .selectFrom('ordered_guides')
+    .innerJoin('users', 'users.id', 'ordered_guides.user_id')
+    .innerJoin('guides', 'guides.id', 'ordered_guides.guide_id')
+    .innerJoin('cities', 'cities.id', 'guides.city_id')
+    .$call((qb) => RM.search(qb, opts));
+
+    const orderBy = opts.order_by ?? 'ordered_guides.created_at';
+    const direction = opts.direction ?? 'desc';
+    const guides = await query
+      .selectAll('ordered_guides')
+      .selectAll('users')
+      .select([
+        'ordered_guides.id as id',
+        'ordered_guides.user_id as user_id',
+        'ordered_guides.guide_id as guide_id',
+        'ordered_guides.status as status',
+        'ordered_guides.start_date as start_date',
+        'ordered_guides.end_date as end_date',
+        'users.name as name',
+        'users.picture as picture',
+        'cities.name as city',
+        sql<number>`to_timestamp(ordered_guides.end_date) - to_timestamp(ordered_guides.start_date)`.as('count_day'),
+        sql<number>`guides.price_per_day * (to_timestamp(ordered_guides.end_date) - to_timestamp(ordered_guides.start_date))`.as('total_price')])
+      .orderBy(sql.raw(orderBy), direction)
+      .$call((qb) => RM.paginate(qb, opts))
+      .execute();
+
+    const paginationResult = await RM.getPaginationInfo(query, opts);
+    if (paginationResult.err) return paginationResult;
+    const pagination = paginationResult.unwrap();
+
+    return Ok({
+      data: guides,
+      pagination 
     });
   } catch (err) {
     return Err(toAppError(err));
