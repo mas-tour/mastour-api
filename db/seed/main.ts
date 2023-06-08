@@ -66,11 +66,13 @@ async function initCities(db: Kysely<Database>) {
         .values([
             {
                 name: 'Bandung',
-                picture: faker.image.urlLoremFlickr({ category: 'city' }),
+                picture:
+                    'https://storage.googleapis.com/mastourbucket-test/city-picture/Bandung/Gedung_Sate',
             },
             {
                 name: 'Makassar',
-                picture: faker.image.urlLoremFlickr({ category: 'city' }),
+                picture:
+                    'https://storage.googleapis.com/mastourbucket-test/city-picture/Makassar/Pantai_Losari.jpg',
             },
         ])
         .returningAll()
@@ -171,10 +173,7 @@ async function initGuides(
         const placeIds = places.map((place) => place.id);
         const insertGuideTopPlaces = insertedGuides
             .map((row) => {
-                const pickedPlaces = faker.helpers.arrayElements(
-                    placeIds,
-                    3
-                );
+                const pickedPlaces = faker.helpers.arrayElements(placeIds, 3);
 
                 return pickedPlaces.map((innerRow) => ({
                     guide_id: row.id,
@@ -188,7 +187,7 @@ async function initGuides(
             .values(insertGuideCategory)
             .returningAll()
             .execute();
-        
+
         await trx
             .insertInto('guide_top_places')
             .values(insertGuideTopPlaces)
@@ -250,14 +249,46 @@ async function initCategories(db: Kysely<Database>) {
     }
 
     const categories = [
-        'Historical',
-        'Adventure',
-        'Nature and Wildlife',
-        'Culinary',
-        'Wellness and Retreat',
-        'Architectural',
-        'Educational',
-        'Shopping',
+        {
+            name: 'Historical',
+            picture:
+                'https://storage.googleapis.com/mastourbucket-test/category-pictures/historical/historical.jpg',
+        },
+        {
+            name: 'Adventure',
+            picture:
+                'https://storage.googleapis.com/mastourbucket-test/category-pictures/adventure/adventure.jpg',
+        },
+        {
+            name: 'Nature and Wildlife',
+            picture:
+                'https://storage.googleapis.com/mastourbucket-test/category-pictures/Nature%26Wildlife/nature%26wildlife.jpg',
+        },
+        {
+            name: 'Culinary',
+            picture:
+                'https://storage.googleapis.com/mastourbucket-test/category-pictures/culinary/culinaryjpg',
+        },
+        {
+            name: 'Wellness and Retreat',
+            picture:
+                'https://storage.googleapis.com/mastourbucket-test/category-pictures/wellness%26retreat/wellness%26retreat2.jpg',
+        },
+        {
+            name: 'Architectural',
+            picture:
+                'https://storage.googleapis.com/mastourbucket-test/category-pictures/architectural/architectural.jpg',
+        },
+        {
+            name: 'Educational',
+            picture:
+                'https://storage.googleapis.com/mastourbucket-test/category-pictures/educational/educational.jpg',
+        },
+        {
+            name: 'Shopping',
+            picture:
+                'https://storage.googleapis.com/mastourbucket-test/category-pictures/shopping/shopping.jpg',
+        },
     ];
 
     const inserted = await db
@@ -266,8 +297,9 @@ async function initCategories(db: Kysely<Database>) {
             categories.map(
                 (row) =>
                     ({
-                        name: row,
-                        slug: row.toLowerCase().replace(/ /g, '-'),
+                        name: row.name,
+                        slug: row.name.toLowerCase().replace(/ /g, '-'),
+                        picture: row.picture,
                     } as Categories['insert'])
             )
         )
@@ -275,8 +307,6 @@ async function initCategories(db: Kysely<Database>) {
         .execute();
     console.log(`Inserted ${inserted.length} categories data!`);
     return inserted;
-
-    
 }
 
 async function initPlaces(db: Kysely<Database>) {
@@ -287,22 +317,20 @@ async function initPlaces(db: Kysely<Database>) {
         return await db.selectFrom('places').selectAll().execute();
     }
 
-    const places = Array(6).fill(null).map( () => {
-        return{
-            name: faker.location.street(),
-            picture: faker.image.url(),
-        }as Places["insert"]
-    })
+    const places = Array(6)
+        .fill(null)
+        .map(() => {
+            return {
+                name: faker.location.street(),
+                picture: faker.image.url(),
+            } as Places['insert'];
+        });
 
     const inserted = await db
         .insertInto('places')
-        .values(
-            places
-        )
+        .values(places)
         .returningAll()
         .execute();
     console.log(`Inserted ${inserted.length} places data!`);
     return inserted;
-
-
 }

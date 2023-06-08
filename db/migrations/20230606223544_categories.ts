@@ -10,6 +10,7 @@ export async function up(db: Kysely<any>): Promise<void> {
         )
         .addColumn('name', 'varchar', (col) => col.notNull())
         .addColumn('slug', 'varchar', (col) => col.notNull().unique())
+        .addColumn('picture', 'varchar', (col) => col.notNull())
         .addColumn('created_at', 'bigint', (col) =>
             col.defaultTo(sql`EXTRACT(EPOCH FROM NOW()) * 1000`).notNull()
         )

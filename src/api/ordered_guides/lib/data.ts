@@ -41,15 +41,17 @@ export async function book(
 //fix
 export async function readMany(
   db: Kysely<Database>,
-  opts: OrderedGuides['readMany']['query']
+  opts: OrderedGuides['readMany']['query'],
+  user_id: string
 ): Promise<AppResult<OrderedGuides['readMany']['response']>> {
   try {
     const query = db
-    .selectFrom('ordered_guides')
-    .innerJoin('users', 'users.id', 'ordered_guides.user_id')
-    .innerJoin('guides', 'guides.id', 'ordered_guides.guide_id')
-    .innerJoin('cities', 'cities.id', 'guides.city_id')
-    .$call((qb) => RM.search(qb, opts));
+      .selectFrom('ordered_guides')
+      .innerJoin('users', 'users.id', 'ordered_guides.user_id')
+      .innerJoin('guides', 'guides.id', 'ordered_guides.guide_id')
+      .innerJoin('cities', 'cities.id', 'guides.city_id')
+      .where('ordered_guides.user_id', '=', user_id)
+      .$call((qb) => RM.search(qb, opts));
 
     const orderBy = opts.order_by ?? 'ordered_guides.created_at';
     const direction = opts.direction ?? 'desc';
@@ -66,8 +68,13 @@ export async function readMany(
         'users.name as name',
         'users.picture as picture',
         'cities.name as city',
-        sql<number>`to_timestamp(ordered_guides.end_date) - to_timestamp(ordered_guides.start_date)`.as('count_day'),
-        sql<number>`guides.price_per_day * (to_timestamp(ordered_guides.end_date) - to_timestamp(ordered_guides.start_date))`.as('total_price')])
+        sql<number>`to_timestamp(ordered_guides.end_date) - to_timestamp(ordered_guides.start_date)`.as(
+          'count_day'
+        ),
+        sql<number>`guides.price_per_day * (to_timestamp(ordered_guides.end_date) - to_timestamp(ordered_guides.start_date))`.as(
+          'total_price'
+        ),
+      ])
       .orderBy(sql.raw(orderBy), direction)
       .$call((qb) => RM.paginate(qb, opts))
       .execute();
@@ -78,7 +85,7 @@ export async function readMany(
 
     return Ok({
       data: guides,
-      pagination 
+      pagination,
     });
   } catch (err) {
     return Err(toAppError(err));

@@ -5,6 +5,7 @@ export const Category = Type.Object({
     id: Type.String({ format: 'uuid' }),
     name: Type.String(),
     slug: Type.String(),
+    picture: Type.String(),
     created_at: Type.Integer(),
     updated_at: Type.Integer(),
 });
