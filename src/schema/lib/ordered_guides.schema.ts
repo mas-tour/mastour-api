@@ -1,6 +1,7 @@
 import { Type } from '@sinclair/typebox';
 
 import { DbSchema, RecursiveStatic } from '../../database';
+import { PaginationInfoSchema, ReadManySchema } from './read-many';
 
 export const OrderedGuidesSchema = {
   path: '/ordered_guides',
@@ -18,12 +19,22 @@ export const OrderedGuidesSchema = {
   },
   readMany: {
     path:'/history',
+    query: Type.Intersect([
+      ReadManySchema,
+    ]),
     response: Type.Object({    
       data: Type.Array(
-        Type.Intersect([ DbSchema['users'], DbSchema['ordered_guides'],
-        Type.Object({ city: Type.String(), count_day: Type.Integer(), total_price: Type.Integer(),}),
+        Type.Intersect([
+          DbSchema['users'],
+          DbSchema['ordered_guides'],
+          Type.Object({
+            city: Type.String(),
+            count_day: Type.Integer(),
+            total_price: Type.Integer(),
+          }),
         ])
       ),
+      pagination: PaginationInfoSchema,
     })
   }
 };
