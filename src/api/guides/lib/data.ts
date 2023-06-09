@@ -23,7 +23,9 @@ export async function readMany(
           )
           .select([
             'guide_categories.guide_id',
-            sql`jsonb_agg(categories.*)`.as('categories'),
+            sql`jsonb_agg(categories.* ORDER BY categories.name ASC)`.as(
+              'categories'
+            ),
           ])
           .groupBy('guide_categories.guide_id')
           .as('categories'),
@@ -80,7 +82,9 @@ export async function read(
           )
           .select([
             'guide_categories.guide_id',
-            sql`jsonb_agg(categories.*)`.as('categories'),
+            sql`jsonb_agg(categories.* ORDER BY categories.name ASC)`.as(
+              'categories'
+            ),
           ])
           .groupBy('guide_categories.guide_id')
           .as('categories'),
@@ -93,7 +97,7 @@ export async function read(
           .leftJoin('places', 'places.id', 'guide_top_places.place_id')
           .select([
             'guide_top_places.guide_id',
-            sql`jsonb_agg(places.*)`.as('top_places'),
+            sql`jsonb_agg(places.* ORDER BY places.name ASC)`.as('top_places'),
           ])
           .groupBy('guide_top_places.guide_id')
           .as('top_places'),

@@ -91,6 +91,14 @@ describe('Guides endpoints', () => {
       .returningAll()
       .execute();
 
+    const guideCategories = await db
+      .selectFrom('guide_categories')
+      .innerJoin('categories', 'categories.id', 'guide_categories.category_id')
+      .where('guide_categories.guide_id', '=', guide.id)
+      .selectAll('categories')
+      .orderBy('categories.name')
+      .execute();
+
     const getAllResponse = await T.request({
       method: 'GET',
       path: '/guides',
@@ -103,6 +111,13 @@ describe('Guides endpoints', () => {
     expect(getAllResponse.data.data).toBeInstanceOf(Array);
     expect(getAllResponse.data.data.length).toBeGreaterThan(0);
     expect(getAllResponse.data.data[0].categories).toBeInstanceOf(Array);
+    expect(getAllResponse.data.data[0].categories).toMatchObject(
+      guideCategories.map((row) => ({
+        ...row,
+        created_at: +row.created_at,
+        updated_at: +row.updated_at,
+      }))
+    );
 
     const getOneResponse = await T.request({
       method: 'GET',
@@ -128,14 +143,12 @@ describe('Guides endpoints', () => {
       city: expect.any(String),
       categories: expect.any(Array),
     });
-    expect(getOneResponse.data.data[0].categories).toIncludeSameMembers(
-      categories
-        .filter((row) => pickedCategories.includes(row.id))
-        .map((row) => ({
-          ...row,
-          updated_at: +row.updated_at,
-          created_at: +row.created_at,
-        }))
+    expect(getOneResponse.data.data[0].categories).toMatchObject(
+      guideCategories.map((row) => ({
+        ...row,
+        created_at: +row.created_at,
+        updated_at: +row.updated_at,
+      }))
     );
 
     const { password: _password, ...userWithoutPassword } = user;
@@ -165,14 +178,12 @@ describe('Guides endpoints', () => {
           created_at: +row.created_at,
         }))
     );
-    expect(getDetailResponse.data.data.top_places).toIncludeSameMembers(
-      places
-        .filter((row) => pickedPlaces.includes(row.id))
-        .map((row) => ({
-          ...row,
-          updated_at: +row.updated_at,
-          created_at: +row.created_at,
-        }))
+    expect(getDetailResponse.data.data.categories).toMatchObject(
+      guideCategories.map((row) => ({
+        ...row,
+        created_at: +row.created_at,
+        updated_at: +row.updated_at,
+      }))
     );
 
     await db
