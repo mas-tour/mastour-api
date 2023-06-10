@@ -76,6 +76,7 @@ describe('Profile endpoints', () => {
     expect(getProfileResponse.data).toMatchObject({
       data: {
         ...userWithoutPassword,
+        age: expect.any(Number),
         birth_date: +user.birth_date,
         created_at: +user.created_at,
         updated_at: +user.updated_at,
