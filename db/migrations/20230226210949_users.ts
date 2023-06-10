@@ -19,6 +19,7 @@ export async function up(db: Kysely<any>): Promise<void> {
         .addColumn('picture', 'text')
         .addColumn('answers', sql`integer[25]`)
         .addColumn('personality', 'integer')
+        .addColumn('pca', sql`float4[2]`)
         .addColumn('created_at', 'bigint', (col) =>
             col.defaultTo(sql`EXTRACT(EPOCH FROM NOW()) * 1000`).notNull()
         )

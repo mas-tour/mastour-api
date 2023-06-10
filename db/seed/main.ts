@@ -12,6 +12,7 @@ import { faker } from '@faker-js/faker';
 import * as bcrypt from 'bcrypt';
 
 import 'dotenv/config';
+import axios from 'axios';
 
 async function initSeedData(): Promise<void> {
     const db = new Kysely<Database>({
@@ -146,7 +147,7 @@ async function initGuides(
                 city_id: faker.helpers.arrayElement(citiesIds),
                 detail_picture: faker.image.url(),
                 description: faker.lorem.paragraphs(),
-                price_per_day: faker.number.int({ min: 50000 }),
+                price_per_day: faker.number.int({ min: 50_000, max: 600_000 }),
             } as Guides['insert'];
         });
         const insertedGuides = await trx
@@ -193,6 +194,113 @@ async function initGuides(
             .values(insertGuideTopPlaces)
             .returningAll()
             .execute();
+
+        const userPersonality = await trx
+            .selectFrom('users')
+            .innerJoin('guides', 'guides.user_id', 'users.id')
+            .innerJoin('cities', 'cities.id', 'guides.city_id')
+            .leftJoin(
+                db
+                    .selectFrom('guide_categories')
+                    .leftJoin(
+                        'categories',
+                        'categories.id',
+                        'guide_categories.category_id'
+                    )
+                    .select([
+                        'guide_categories.guide_id',
+                        sql`jsonb_agg(categories.name)`.as('categories'),
+                    ])
+                    .groupBy('guide_categories.guide_id')
+                    .as('categories'),
+                'guides.id',
+                'categories.guide_id'
+            )
+            .selectAll()
+            .select([
+                'users.id as id',
+                sql<number>`date_part('year', age(to_timestamp(users.birth_date / 1000)))`.as(
+                    'age'
+                ),
+                sql<string[]>`categories.categories`.as('categories'),
+            ])
+            .execute();
+
+        const personalities = userPersonality.map((row) => row.answers);
+        const personalityAnswers = {
+            instances: personalities,
+        };
+
+        const {
+            data: { predictions: personalityResults },
+        } = await axios.post(
+            process.env.PERSONALITY_MODEL_URL ?? '',
+            personalityAnswers
+        );
+        const updateBody = userPersonality.map((row, i) => {
+            return {
+                ...row,
+                personality: personalityResults[i].indexOf(
+                    Math.max(...personalityResults[i])
+                ),
+            };
+        });
+
+        const categoriesList = [
+            'Historical',
+            'Adventure',
+            'Nature and Wildlife',
+            'Culinary',
+            'Wellness and Retreat',
+            'Architectural',
+            'Educational',
+            'Shopping',
+        ];
+
+        const pcaBody: number[][] = [];
+        userPersonality.map((user, i) => {
+            const pcaBodyUser = [+(user.gender === 'male')];
+            if (user.age >= 17 && user.age <= 25) {
+                pcaBodyUser.push(...[1, 0, 0, 0, 0]);
+            } else if (user.age >= 26 && user.age <= 34) {
+                pcaBodyUser.push(...[0, 1, 0, 0, 0]);
+            } else if (user.age >= 35 && user.age <= 43) {
+                pcaBodyUser.push(...[0, 0, 1, 0, 0]);
+            } else if (user.age >= 44 && user.age <= 52) {
+                pcaBodyUser.push(...[0, 0, 0, 1, 0]);
+            } else {
+                pcaBodyUser.push(...[0, 0, 0, 0, 1]);
+            }
+            pcaBodyUser.push(
+                ...categoriesList.map((row) =>
+                    user.categories.includes(row) ? 1 : 0
+                ),
+                ...Array(5)
+                    .fill(null)
+                    .map((_, j) => {
+                        return j === (updateBody[i]?.personality ?? 0) - 1
+                            ? 1
+                            : 0;
+                    })
+            );
+            pcaBody.push(pcaBodyUser);
+        });
+        const {
+            data: { predictions: pcaResults },
+        } = await axios.post(process.env.PCA_MODEL_URL ?? '', {
+            instances: pcaBody,
+        });
+
+        updateBody.map(async (row, i) => {
+            await trx
+                .updateTable('users')
+                .where('id', '=', row.id)
+                .set({
+                    personality: row.personality,
+                    pca: pcaResults[i],
+                })
+                .execute();
+        });
 
         return await trx
             .selectFrom('guides')
