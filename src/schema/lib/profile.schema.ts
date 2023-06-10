@@ -6,7 +6,12 @@ export const ProfileSchema = {
   path: '/profile',
   read: {
     response: Type.Object({
-      data: Type.Omit(DbSchema['users'], ['password']),
+      data: Type.Intersect([
+        Type.Omit(DbSchema['users'], ['password']),
+        Type.Object({
+          age: Type.Integer(),
+        }),
+      ]),
     }),
   },
   update: {

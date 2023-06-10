@@ -9,6 +9,14 @@ export async function readMany(
   opts: Guides['readMany']['query']
 ): Promise<AppResult<Guides['readMany']['response']>> {
   try {
+    //let category: Categories['select'];
+    //if (opts && opts.category_id) {
+    //category = await db
+    //.selectFrom('categories')
+    //.where('id', '=', opts.category_id)
+    //.selectAll()
+    //.executeTakeFirstOrThrow();
+    //}
     const query = db
       .selectFrom('guides')
       .innerJoin('users', 'users.id', 'guides.user_id')
@@ -23,6 +31,7 @@ export async function readMany(
           )
           .select([
             'guide_categories.guide_id',
+            sql`jsonb_agg(categories.id)`.as('category_ids'),
             sql`jsonb_agg(categories.* ORDER BY categories.name ASC)`.as(
               'categories'
             ),
@@ -33,6 +42,9 @@ export async function readMany(
         'categories.guide_id'
       )
       .$if(!!opts.city_id, (qb) => qb.where('city_id', '=', opts.city_id ?? ''))
+      .$if(!!opts.category_id, (qb) =>
+        qb.where(sql`categories.category_ids`, '?', opts.category_id)
+      )
       .$call((qb) => RM.search(qb, opts));
 
     const orderBy = opts.order_by ?? 'guides.created_at';

@@ -119,6 +119,27 @@ describe('Guides endpoints', () => {
       }))
     );
 
+    const getCategoryResponse = await T.request({
+      method: 'GET',
+      path: '/guides',
+      params: {
+        size: 10,
+        page: 1,
+        category_id: pickedCategories[0],
+      },
+    });
+    expect(getCategoryResponse.status).toBe(200);
+    expect(getCategoryResponse.data.data).toBeInstanceOf(Array);
+    expect(getCategoryResponse.data.data.length).toBeGreaterThan(0);
+    expect(getCategoryResponse.data.data[0].categories).toBeInstanceOf(Array);
+    expect(getCategoryResponse.data.data[0].categories).toMatchObject(
+      guideCategories.map((row) => ({
+        ...row,
+        created_at: +row.created_at,
+        updated_at: +row.updated_at,
+      }))
+    );
+
     const getOneResponse = await T.request({
       method: 'GET',
       path: '/guides',

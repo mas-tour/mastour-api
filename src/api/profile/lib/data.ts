@@ -1,4 +1,4 @@
-import { Kysely } from 'kysely';
+import { Kysely, sql } from 'kysely';
 import { Database } from '../../../database';
 import { Profile } from '../../../schema';
 import { AppResult, Err, Ok, toAppError } from '../../error-handling';
@@ -12,6 +12,11 @@ export async function read(
       .selectFrom('users')
       .where('id', '=', userId)
       .selectAll()
+      .select([
+        sql<number>`date_part('year', age(to_timestamp(users.birth_date / 1000)))`.as(
+          'age'
+        ),
+      ])
       .executeTakeFirstOrThrow();
 
     const { password: _password, ...userWithoutPassword } = user;

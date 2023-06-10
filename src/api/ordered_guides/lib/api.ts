@@ -48,9 +48,7 @@ const orderedGuidesRoute: FastifyPluginAsync = async (fastify) => {
     {
       schema: {
         tags: ['ordered_guides', 'readMany'],
-        // TODO(Ravi): If not commented it returns an error that it is required
-        // even though it exists
-        //querystring: GuidesSchema.readMany.query,
+        querystring: OrderedGuidesSchema.readMany.query,
         response: addErrorSchemas({
           200: OrderedGuidesSchema.readMany.response,
         }),
