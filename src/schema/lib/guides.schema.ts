@@ -10,6 +10,7 @@ export const GuidesSchema = {
       ReadManySchema,
       Type.Object({
         city_id: Type.Optional(Type.String({ format: 'uuid' })),
+        category_id: Type.Optional(Type.String({ format: 'uuid' })),
       }),
     ]),
     response: Type.Object({
