@@ -8,7 +8,7 @@ const citiesRoute: FastifyPluginAsync = async (fastify) => {
   fastify.get<{
     Reply: Cities['readMany']['response'];
   }>(
-    `${CitiesSchema.path}${CitiesSchema.readMany.path}`,
+    `${CitiesSchema.path}`,
     {
       schema: {
         tags: ['cities', 'readMany'],

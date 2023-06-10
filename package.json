@@ -18,7 +18,8 @@
   "author": "MasTour",
   "license": "MIT",
   "engines": {
-    "node": "18.16.0"
+    "node": "18.16.0",
+    "pnpm": "8.6.0"
   },
   "dependencies": {
     "@faker-js/faker": "^8.0.1",

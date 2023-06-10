@@ -41,6 +41,8 @@ export const GuidesSchema = {
         Type.Omit(DbSchema['users'], [
           'id',
           'password',
+          'personality',
+          'pca',
           'created_at',
           'updated_at',
         ]),
