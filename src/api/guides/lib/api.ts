@@ -3,8 +3,11 @@ import fp from 'fastify-plugin';
 import { Guides, GuidesSchema, addErrorSchemas } from '../../../schema';
 import { sendResult } from '../../error-handling';
 import * as data from './data';
+import { protect } from '../../../plugins';
 
 const guidesRoute: FastifyPluginAsync = async (fastify) => {
+  fastify.register(protect);
+
   fastify.get<{
     Querystring: Guides['readMany']['query'];
     Reply: Guides['readMany']['response'];

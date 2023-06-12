@@ -7,8 +7,11 @@ import {
 } from '../../../schema';
 import { sendResult } from '../../error-handling';
 import * as data from './data';
+import { protect } from '../../../plugins';
 
 const matchmakingRoute: FastifyPluginAsync = async (fastify) => {
+  fastify.register(protect);
+
   fastify.post<{
     Body: Matchmaking['survey']['body'];
     Reply: Matchmaking['survey']['response'];

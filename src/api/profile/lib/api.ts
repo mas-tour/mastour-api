@@ -3,8 +3,11 @@ import fp from 'fastify-plugin';
 import { Profile, ProfileSchema, addErrorSchemas } from '../../../schema';
 import { sendResult, Err, toAppError } from '../../error-handling';
 import * as data from './data';
+import { protect } from '../../../plugins';
 
 const profileRoute: FastifyPluginAsync = async (fastify) => {
+  fastify.register(protect);
+
   fastify.get<{
     Reply: Profile['read']['response'];
   }>(
