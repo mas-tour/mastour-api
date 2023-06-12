@@ -1,5 +1,4 @@
 import { FastifyPluginAsync } from 'fastify';
-import fp from 'fastify-plugin';
 import {
   OrderedGuides,
   OrderedGuidesSchema,
@@ -9,7 +8,7 @@ import { Err, sendResult, toAppError } from '../../error-handling';
 import * as data from './data';
 import { protect } from '../../../plugins';
 
-const orderedGuidesRoute: FastifyPluginAsync = async (fastify) => {
+export const orderedGuidesPlugin: FastifyPluginAsync = async (fastify) => {
   fastify.register(protect);
 
   fastify.post<{
@@ -74,8 +73,3 @@ const orderedGuidesRoute: FastifyPluginAsync = async (fastify) => {
     }
   );
 };
-
-export const orderedGuidesPlugin = fp(orderedGuidesRoute, {
-  fastify: '4.x',
-  name: 'mastour-ordered-guides',
-});

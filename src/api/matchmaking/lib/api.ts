@@ -1,5 +1,4 @@
 import { FastifyPluginAsync } from 'fastify';
-import fp from 'fastify-plugin';
 import {
   Matchmaking,
   MatchmakingSchema,
@@ -9,7 +8,7 @@ import { sendResult } from '../../error-handling';
 import * as data from './data';
 import { protect } from '../../../plugins';
 
-const matchmakingRoute: FastifyPluginAsync = async (fastify) => {
+export const matchmakingPlugin: FastifyPluginAsync = async (fastify) => {
   fastify.register(protect);
 
   fastify.post<{
@@ -60,8 +59,3 @@ const matchmakingRoute: FastifyPluginAsync = async (fastify) => {
     }
   );
 };
-
-export const matchmakingPlugin = fp(matchmakingRoute, {
-  fastify: '4.x',
-  name: 'mastour-matchmaking',
-});

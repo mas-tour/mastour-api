@@ -1,11 +1,10 @@
 import { FastifyPluginAsync } from 'fastify';
-import fp from 'fastify-plugin';
 import { Guides, GuidesSchema, addErrorSchemas } from '../../../schema';
 import { sendResult } from '../../error-handling';
 import * as data from './data';
 import { protect } from '../../../plugins';
 
-const guidesRoute: FastifyPluginAsync = async (fastify) => {
+export const guidesPlugin: FastifyPluginAsync = async (fastify) => {
   fastify.register(protect);
 
   fastify.get<{
@@ -48,8 +47,3 @@ const guidesRoute: FastifyPluginAsync = async (fastify) => {
     }
   );
 };
-
-export const guidesPlugin = fp(guidesRoute, {
-  fastify: '4.x',
-  name: 'mastour-guides',
-});
