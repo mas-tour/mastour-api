@@ -47,8 +47,8 @@ export async function readMany(
   try {
     const query = db
       .selectFrom('ordered_guides')
-      .innerJoin('users', 'users.id', 'ordered_guides.user_id')
       .innerJoin('guides', 'guides.id', 'ordered_guides.guide_id')
+      .innerJoin('users', 'users.id', 'guides.user_id')
       .innerJoin('cities', 'cities.id', 'guides.city_id')
       .where('ordered_guides.user_id', '=', user_id)
       .$call((qb) => RM.search(qb, opts));
