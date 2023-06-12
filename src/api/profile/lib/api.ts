@@ -1,11 +1,10 @@
 import { FastifyPluginAsync } from 'fastify';
-import fp from 'fastify-plugin';
 import { Profile, ProfileSchema, addErrorSchemas } from '../../../schema';
 import { sendResult, Err, toAppError } from '../../error-handling';
 import * as data from './data';
 import { protect } from '../../../plugins';
 
-const profileRoute: FastifyPluginAsync = async (fastify) => {
+export const profilePlugin: FastifyPluginAsync = async (fastify) => {
   fastify.register(protect);
 
   fastify.get<{
@@ -60,8 +59,3 @@ const profileRoute: FastifyPluginAsync = async (fastify) => {
     }
   );
 };
-
-export const profilePlugin = fp(profileRoute, {
-  fastify: '4.x',
-  name: 'mastour-profile',
-});

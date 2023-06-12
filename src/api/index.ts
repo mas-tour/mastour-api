@@ -4,13 +4,9 @@ import { authPlugin } from './auth';
 import { matchmakingPlugin } from './matchmaking';
 import {
   AuthSchema,
-  MatchmakingSchema,
-  GuidesSchema,
   CategoriesSchema,
-  ProfileSchema,
   CitiesSchema,
   PlacesSchema,
-  OrderedGuidesSchema,
 } from '../schema';
 import { guidesPlugin } from './guides';
 import { citiesPlugin } from './cities';
@@ -34,21 +30,15 @@ export const appRoutes: FastifyPluginAsync = async (app) => {
     saltRounds: +(process.env.SALT_ROUNDS || 12),
   });
 
-  app.register(matchmakingPlugin, {
-    prefix: `${MatchmakingSchema.path}`,
-  });
+  app.register(matchmakingPlugin);
 
-  app.register(guidesPlugin, {
-    prefix: `${GuidesSchema.path}`,
-  });
+  app.register(guidesPlugin);
 
   app.register(citiesPlugin, {
     prefix: `${CitiesSchema.path}`,
   });
 
-  app.register(profilePlugin, {
-    prefix: `${ProfileSchema.path}`,
-  });
+  app.register(profilePlugin);
 
   app.register(categoriesPlugin, {
     prefix: `${CategoriesSchema.path}`,
@@ -58,7 +48,5 @@ export const appRoutes: FastifyPluginAsync = async (app) => {
     prefix: `${PlacesSchema.path}`,
   });
 
-  app.register(orderedGuidesPlugin, {
-    prefix: `${OrderedGuidesSchema.path}`,
-  });
+  app.register(orderedGuidesPlugin);
 };
