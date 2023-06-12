@@ -20,6 +20,7 @@ export const ProfileSchema = {
       'password',
       'personality',
       'answers',
+      'pca',
       'created_at',
       'updated_at',
     ]),
