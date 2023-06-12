@@ -30,7 +30,7 @@ export const appRoutes: FastifyPluginAsync = async (app) => {
   app.register(authPlugin, {
     prefix: `${AuthSchema.path}`,
     secret: process.env.SECRET ?? '',
-    sign: { expiresIn: '12h' },
+    sign: {},
     saltRounds: +(process.env.SALT_ROUNDS || 12),
   });
 

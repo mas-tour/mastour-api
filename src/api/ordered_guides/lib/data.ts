@@ -65,13 +65,14 @@ export async function readMany(
         'ordered_guides.status as status',
         'ordered_guides.start_date as start_date',
         'ordered_guides.end_date as end_date',
+        'guides.price_per_day',
         'users.name as name',
         'users.picture as picture',
         'cities.name as city',
-        sql<number>`to_timestamp(ordered_guides.end_date / 1000) - to_timestamp(ordered_guides.start_date / 1000)`.as(
+        sql<number>`date_part('day', to_timestamp(ordered_guides.end_date / 1000) - to_timestamp(ordered_guides.start_date / 1000))`.as(
           'count_day'
         ),
-        sql<number>`guides.price_per_day * (to_timestamp(ordered_guides.end_date / 1000) - to_timestamp(ordered_guides.start_date / 1000))`.as(
+        sql<number>`guides.price_per_day * (date_part('day', (to_timestamp(ordered_guides.end_date / 1000) - to_timestamp(ordered_guides.start_date / 1000))))`.as(
           'total_price'
         ),
       ])

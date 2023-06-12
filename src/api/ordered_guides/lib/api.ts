@@ -7,8 +7,11 @@ import {
 } from '../../../schema';
 import { Err, sendResult, toAppError } from '../../error-handling';
 import * as data from './data';
+import { protect } from '../../../plugins';
 
 const orderedGuidesRoute: FastifyPluginAsync = async (fastify) => {
+  fastify.register(protect);
+
   fastify.post<{
     Params: OrderedGuides['book']['params'];
     Body: OrderedGuides['book']['body'];

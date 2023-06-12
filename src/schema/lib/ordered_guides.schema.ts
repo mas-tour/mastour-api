@@ -18,11 +18,9 @@ export const OrderedGuidesSchema = {
     }),
   },
   readMany: {
-    path:'/history',
-    query: Type.Intersect([
-      ReadManySchema,
-    ]),
-    response: Type.Object({    
+    path: '/history',
+    query: Type.Intersect([ReadManySchema]),
+    response: Type.Object({
       data: Type.Array(
         Type.Intersect([
           DbSchema['users'],
@@ -31,12 +29,13 @@ export const OrderedGuidesSchema = {
             city: Type.String(),
             count_day: Type.Integer(),
             total_price: Type.Integer(),
+            price_per_day: Type.Integer(),
           }),
         ])
       ),
       pagination: PaginationInfoSchema,
-    })
-  }
+    }),
+  },
 };
 
 // TODO(fatur): Ini type data buat response nanti history
