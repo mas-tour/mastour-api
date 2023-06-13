@@ -42,7 +42,6 @@ export const GuidesSchema = {
           'id',
           'password',
           'personality',
-          'pca',
           'created_at',
           'updated_at',
         ]),

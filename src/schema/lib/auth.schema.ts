@@ -13,7 +13,6 @@ export const AuthSchema = {
         'updated_at',
         'personality',
         'answers',
-        'pca',
       ]),
     ]),
     response: Type.Object({
