@@ -36,9 +36,10 @@ export async function survey(
       .where('id', '=', userId)
       .set({
         ...insertRecord,
-        personality: personalityResults.predictions[0].indexOf(
-          Math.max(...personalityResults.predictions[0])
-        ),
+        personality:
+          personalityResults.predictions[0].indexOf(
+            Math.max(...personalityResults.predictions[0])
+          ) + 1,
       })
       .returningAll()
       .executeTakeFirstOrThrow();
@@ -76,19 +77,19 @@ export async function search(
         throw err;
       }
 
-      const pcaBody = [+(user.gender === 'male')];
+      const pcaBodyUser = [+(user.gender === 'male')];
       if (user.age >= 17 && user.age <= 25) {
-        pcaBody.push(...[1, 0, 0, 0, 0]);
+        pcaBodyUser.push(...[1, 0, 0, 0, 0]);
       } else if (user.age >= 26 && user.age <= 34) {
-        pcaBody.push(...[0, 1, 0, 0, 0]);
+        pcaBodyUser.push(...[0, 1, 0, 0, 0]);
       } else if (user.age >= 35 && user.age <= 43) {
-        pcaBody.push(...[0, 0, 1, 0, 0]);
+        pcaBodyUser.push(...[0, 0, 1, 0, 0]);
       } else if (user.age >= 44 && user.age <= 52) {
-        pcaBody.push(...[0, 0, 0, 1, 0]);
+        pcaBodyUser.push(...[0, 0, 0, 1, 0]);
       } else {
-        pcaBody.push(...[0, 0, 0, 0, 1]);
+        pcaBodyUser.push(...[0, 0, 0, 0, 1]);
       }
-      pcaBody.push(
+      pcaBodyUser.push(
         ...insertRecord.categories,
         ...Array(5)
           .fill(null)
@@ -97,38 +98,98 @@ export async function search(
           })
       );
 
-      const { data: pcaResults } = await axios.post(
-        process.env.PCA_MODEL_URL ?? '',
-        { instances: [pcaBody] }
-      );
-
-      const updatedUser = await trx
-        .updateTable('users')
-        .where('id', '=', userId)
-        .set({
-          pca: pcaResults.predictions[0],
-        })
-        .returningAll()
-        .executeTakeFirstOrThrow();
+      const pcaBody = [pcaBodyUser];
 
       // Find the guides in destination
       const guides = await trx
         .selectFrom('guides')
         .innerJoin('users', 'users.id', 'guides.user_id')
+        .leftJoin(
+          db
+            .selectFrom('guide_categories')
+            .leftJoin(
+              'categories',
+              'categories.id',
+              'guide_categories.category_id'
+            )
+            .select([
+              'guide_categories.guide_id',
+              sql`jsonb_agg(categories.name ORDER BY categories.name ASC)`.as(
+                'categories'
+              ),
+            ])
+            .groupBy('guide_categories.guide_id')
+            .as('categories'),
+          'guides.id',
+          'categories.guide_id'
+        )
         .where('guides.city_id', '=', insertRecord.city_id)
-        .select(['guides.id as id', 'pca'])
+        .select([
+          'guides.id as id',
+          'gender',
+          'personality',
+          sql<number>`date_part('year', age(to_timestamp(users.birth_date / 1000)))`.as(
+            'age'
+          ),
+          sql<Categories['select']['name'][]>`categories.categories`.as(
+            'categories'
+          ),
+        ])
         .execute();
+
+      const categoriesList = [
+        'Historical',
+        'Adventure',
+        'Nature and Wildlife',
+        'Culinary',
+        'Wellness and Retreat',
+        'Architectural',
+        'Educational',
+        'Shopping',
+      ];
+
+      guides.map((guide) => {
+        const pcaBodyGuide = [+(guide.gender === 'male')];
+        if (guide.age >= 17 && guide.age <= 25) {
+          pcaBodyGuide.push(...[1, 0, 0, 0, 0]);
+        } else if (guide.age >= 26 && guide.age <= 34) {
+          pcaBodyGuide.push(...[0, 1, 0, 0, 0]);
+        } else if (guide.age >= 35 && guide.age <= 43) {
+          pcaBodyGuide.push(...[0, 0, 1, 0, 0]);
+        } else if (guide.age >= 44 && guide.age <= 52) {
+          pcaBodyGuide.push(...[0, 0, 0, 1, 0]);
+        } else {
+          pcaBodyGuide.push(...[0, 0, 0, 0, 1]);
+        }
+        pcaBodyGuide.push(
+          ...categoriesList.map((row) =>
+            guide.categories.includes(row) ? 1 : 0
+          ),
+          ...Array(5)
+            .fill(null)
+            .map((_, i) => {
+              return i === (guide.personality ?? 0) - 1 ? 1 : 0;
+            })
+        );
+        pcaBody.push(pcaBodyGuide);
+      });
+
+      const {
+        data: { predictions: pcaResults },
+      } = await axios.post(process.env.PCA_MODEL_URL ?? '', {
+        instances: pcaBody,
+      });
+
+      const [pcaUser, ...pcaGuides] = pcaResults;
+
       // find the euclidean distance
       const distances: Record<string, number> = {};
 
       // Calculate distances
-      for (const vec of guides) {
-        const distance = euclideanDistance(
-          updatedUser.pca ?? [],
-          vec.pca ?? []
-        );
-        distances[vec.id] = distance;
-      }
+      guides.map((row, i) => {
+        const distance = euclideanDistance(pcaUser ?? [], pcaGuides[i] ?? []);
+        distances[row.id] = distance;
+      });
 
       // Find maximum distances
       const maxDistance = Math.max(...Object.values(distances));
@@ -181,7 +242,6 @@ export async function search(
           'username',
           'users.name as name',
           'users.picture as picture',
-          'pca',
           'cities.name as city',
           sql<Categories['select'][]>`categories.categories`.as('categories'),
         ])

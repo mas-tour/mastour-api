@@ -285,19 +285,13 @@ async function initGuides(
             );
             pcaBody.push(pcaBodyUser);
         });
-        const {
-            data: { predictions: pcaResults },
-        } = await axios.post(process.env.PCA_MODEL_URL ?? '', {
-            instances: pcaBody,
-        });
 
-        updateBody.map(async (row, i) => {
+        updateBody.map(async (row) => {
             await trx
                 .updateTable('users')
                 .where('id', '=', row.id)
                 .set({
                     personality: row.personality,
-                    pca: pcaResults[i],
                 })
                 .execute();
         });

@@ -9,14 +9,6 @@ export async function readMany(
   opts: Guides['readMany']['query']
 ): Promise<AppResult<Guides['readMany']['response']>> {
   try {
-    //let category: Categories['select'];
-    //if (opts && opts.category_id) {
-    //category = await db
-    //.selectFrom('categories')
-    //.where('id', '=', opts.category_id)
-    //.selectAll()
-    //.executeTakeFirstOrThrow();
-    //}
     const query = db
       .selectFrom('guides')
       .innerJoin('users', 'users.id', 'guides.user_id')
