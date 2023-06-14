@@ -23,7 +23,7 @@ export const OrderedGuidesSchema = {
     response: Type.Object({
       data: Type.Array(
         Type.Intersect([
-          DbSchema['users'],
+          Type.Omit(DbSchema['users'], ['password']),
           DbSchema['ordered_guides'],
           Type.Object({
             city: Type.String(),
@@ -37,18 +37,5 @@ export const OrderedGuidesSchema = {
     }),
   },
 };
-
-// TODO(fatur): Ini type data buat response nanti history
-//data: Type.Array(
-//Type.Intersect([
-//DbSchema['users'],
-//DbSchema['ordered_guides'],
-//Type.Object({
-//city: Type.String(),
-//count_day: Type.Integer(),
-//total_price: Type.Integer(),
-//}),
-//])
-//),
 
 export type OrderedGuides = RecursiveStatic<typeof OrderedGuidesSchema>;

@@ -10,7 +10,7 @@ export const MatchmakingSchema = {
       answers: Type.Array(Type.Integer(), { minItems: 25, maxItems: 25 }),
     }),
     response: Type.Object({
-      data: DbSchema['users'],
+      data: Type.Omit(DbSchema['users'], ['password']),
     }),
   },
   search: {
