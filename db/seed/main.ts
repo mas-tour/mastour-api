@@ -68,12 +68,12 @@ async function initCities(db: Kysely<Database>) {
             {
                 name: 'Bandung',
                 picture:
-                    'https://storage.googleapis.com/mastourbucket-test/city-picture/Bandung/Gedung_Sate',
+                    'https://storage.googleapis.com/mastour-bucket/City-pictures/Bandung/Gedung_Sate_Bandung_Jawa_Barat.jpg',
             },
             {
                 name: 'Makassar',
                 picture:
-                    'https://storage.googleapis.com/mastourbucket-test/city-picture/Makassar/Pantai_Losari.jpg',
+                    'https://storage.googleapis.com/mastour-bucket/City-pictures/Makassar/Makassar-masjid-99-kubah.jpg',
             },
         ])
         .returningAll()
@@ -240,50 +240,11 @@ async function initGuides(
         const updateBody = userPersonality.map((row, i) => {
             return {
                 ...row,
-                personality: personalityResults[i].indexOf(
-                    Math.max(...personalityResults[i])
-                ),
+                personality:
+                    personalityResults[i].indexOf(
+                        Math.max(...personalityResults[i])
+                    ) + 1,
             };
-        });
-
-        const categoriesList = [
-            'Historical',
-            'Adventure',
-            'Nature and Wildlife',
-            'Culinary',
-            'Wellness and Retreat',
-            'Architectural',
-            'Educational',
-            'Shopping',
-        ];
-
-        const pcaBody: number[][] = [];
-        userPersonality.map((user, i) => {
-            const pcaBodyUser = [+(user.gender === 'male')];
-            if (user.age >= 17 && user.age <= 25) {
-                pcaBodyUser.push(...[1, 0, 0, 0, 0]);
-            } else if (user.age >= 26 && user.age <= 34) {
-                pcaBodyUser.push(...[0, 1, 0, 0, 0]);
-            } else if (user.age >= 35 && user.age <= 43) {
-                pcaBodyUser.push(...[0, 0, 1, 0, 0]);
-            } else if (user.age >= 44 && user.age <= 52) {
-                pcaBodyUser.push(...[0, 0, 0, 1, 0]);
-            } else {
-                pcaBodyUser.push(...[0, 0, 0, 0, 1]);
-            }
-            pcaBodyUser.push(
-                ...categoriesList.map((row) =>
-                    user.categories.includes(row) ? 1 : 0
-                ),
-                ...Array(5)
-                    .fill(null)
-                    .map((_, j) => {
-                        return j === (updateBody[i]?.personality ?? 0) - 1
-                            ? 1
-                            : 0;
-                    })
-            );
-            pcaBody.push(pcaBodyUser);
         });
 
         updateBody.map(async (row) => {
@@ -354,42 +315,42 @@ async function initCategories(db: Kysely<Database>) {
         {
             name: 'Historical',
             picture:
-                'https://storage.googleapis.com/mastourbucket-test/category-pictures/historical/historical.jpg',
+                'https://storage.googleapis.com/mastour-bucket/Category-pictures/Historical/historical.jpg',
         },
         {
             name: 'Adventure',
             picture:
-                'https://storage.googleapis.com/mastourbucket-test/category-pictures/adventure/adventure.jpg',
+                'https://storage.googleapis.com/mastour-bucket/Category-pictures/Adventure/adventure.jpg',
         },
         {
             name: 'Nature and Wildlife',
             picture:
-                'https://storage.googleapis.com/mastourbucket-test/category-pictures/Nature%26Wildlife/nature%26wildlife.jpg',
+                'https://storage.googleapis.com/mastour-bucket/Category-pictures/Nature-and-Wildlife/nature%26wildlife.jpg',
         },
         {
             name: 'Culinary',
             picture:
-                'https://storage.googleapis.com/mastourbucket-test/category-pictures/culinary/culinaryjpg',
+                'https://storage.googleapis.com/mastour-bucket/Category-pictures/Culinary/culinary.jpg',
         },
         {
             name: 'Wellness and Retreat',
             picture:
-                'https://storage.googleapis.com/mastourbucket-test/category-pictures/wellness%26retreat/wellness%26retreat2.jpg',
+                'https://storage.googleapis.com/mastour-bucket/Category-pictures/Wellness-and-Retreat/wellness%26retreat.jpg',
         },
         {
             name: 'Architectural',
             picture:
-                'https://storage.googleapis.com/mastourbucket-test/category-pictures/architectural/architectural.jpg',
+                'https://storage.googleapis.com/mastour-bucket/Category-pictures/Architectural/architectural.jpg',
         },
         {
             name: 'Educational',
             picture:
-                'https://storage.googleapis.com/mastourbucket-test/category-pictures/educational/educational.jpg',
+                'https://storage.googleapis.com/mastour-bucket/Category-pictures/Educational/educational.jpg',
         },
         {
             name: 'Shopping',
             picture:
-                'https://storage.googleapis.com/mastourbucket-test/category-pictures/shopping/shopping.jpg',
+                'https://storage.googleapis.com/mastour-bucket/Category-pictures/Shopping/shopping.jpg',
         },
     ];
 
