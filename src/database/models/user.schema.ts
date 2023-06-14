@@ -14,7 +14,7 @@ export const User = Type.Object({
     answers: Nullable(
         Type.Array(Type.Integer(), { minItems: 25, maxItems: 25 })
     ),
-    personality: Nullable(Type.Integer()),
+    personality: Nullable(Type.Integer({ minimum: 1, maximum: 5 })),
     created_at: Type.Integer(),
     updated_at: Type.Integer(),
 });
